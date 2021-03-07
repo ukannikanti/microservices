@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: service2
+  namespace: default
+  labels:
+    environment: production
+    app: service2
+spec:
+  volumes:
+    - name: service2-volume
+      gcePersistentDisk:
+        pdName: mydisk-1
+        fsType: ext4
+  containers:
+    - name: service2
+      image:
+      volumeMounts:
+        - name: service2-volume
+          mountPath: /data
+          readOnly: false
+
+
+# Kubernetes will automatically attach to node and mount volume to POD.
+# By defining this way, yaml config file is not portable across clusters. As we hardcoded provider
+# name in the POD configuration.

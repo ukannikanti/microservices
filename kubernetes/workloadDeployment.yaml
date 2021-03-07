@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample-app3-deployment
+  labels:
+    app: sample-app3
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 2
+      maxSurge: 2
+  replicas: 3
+  selector:
+    matchLabels:
+      app: sample-app3
+  template:
+    metadata:
+      name: sample-app3
+      namespace: default
+      labels:
+        app: sample-app3
+    spec:
+      containers:
+        - name: sample-app3
+          image: us.gcr.io/myproject36539/sample-app:9.9
+          livenessProbe:
+            httpGet:
+              path: /healthCheck
+              port: 8080
+            initialDelaySeconds: 15
+            failureThreshold: 3
+            successThreshold: 1
+          readinessProbe:
+            httpGet:
+              path: /healthCheck
+              port: 8080
+            initialDelaySeconds: 15
+            failureThreshold: 3
+            successThreshold: 1
+      initContainers:
+        - name: init-sample-app3
+          image: busybox:1.28
+          command: ['sh', '-c', "exit 0;"]
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: nodes
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              environment: production
+              app: sample-app3
+
+
+# Update deployment kubectl set image deployment/sample-app3-deployment sample-app3=us.gcr.io/myproject36539/kubernetes-examples:2.0 --record

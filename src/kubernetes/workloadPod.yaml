@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: service1
+  namespace: default
+  labels:
+    environment: production
+    app: service1
+spec:
+  containers:
+    - name: service1
+      image: us.gcr.io/turnkey-citadel-301421/microservicesapp:v2.0
+      livenessProbe:
+        httpGet:
+          path: /healthCheck
+          port: 8080
+        initialDelaySeconds: 15
+        failureThreshold: 3
+        successThreshold: 1
+      readinessProbe:
+        httpGet:
+          path: /healthCheck
+          port: 8080
+        initialDelaySeconds: 15
+        failureThreshold: 3
+        successThreshold: 1
+  initContainers:
+    - name: initcontainer
+      image: busybox:1.28
+      command: ['sh', '-c', "exit 0;"]
+#  topologySpreadConstraints:
+#    - maxSkew: 1
+#      topologyKey: node
+#      whenUnsatisfiable: DoNotSchedule
+#      labelSelector:
+#        matchLabels:
+#          environment: production
+#          app: app1
+
+# to create this resource in kubernetes - kubectl create –f workloadPod.yml
+
+
